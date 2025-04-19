@@ -19,3 +19,37 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@layer components {
+  .btn-primary {
+    @apply bg-[var(--primary)] hover:bg-[var(--primary-light)] text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg;
+  }
+  
+  .btn-secondary {
+    @apply bg-white hover:bg-gray-50 text-[var(--primary)] font-semibold py-3 px-6 rounded-lg transition-all duration-200 border border-[var(--primary-light)] shadow-sm hover:shadow;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-all duration-200 border border-gray-100;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary-light)] focus:border-transparent transition-all duration-200;
+  }
+
+  .nav-link {
+    @apply text-[var(--text-light)] hover:text-[var(--primary)] transition-colors duration-200;
+  }
+
+  .section-title {
+    @apply text-2xl font-bold text-[var(--primary)] mb-4;
+  }
+
+  .tree-node {
+    @apply bg-white rounded-full w-16 h-16 flex items-center justify-center shadow-md border-2 border-[var(--primary-light)] transition-all duration-200 hover:scale-110;
+  }
+
+  .tree-connector {
+    @apply border-l-2 border-[var(--primary-light)] h-8;
+  }
+}
