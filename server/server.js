@@ -13,9 +13,18 @@ app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 app.use(express.json());
 
 // ------------ Faux “database” -------------
-const users = [];      // { id, email, hash, firstName, lastName }
-const families = {};   // key = userId, value = array of family members
-// ------------------------------------------
+// key = userId, value = array of family members
+// each member = {
+//   id: string,
+//   name: string,
+//   birthDate: string,      // ISO format
+//   spouseId: string|null,  // member.id of spouse
+//   childrenIds: string[],  // array of member.id
+//   location?: string,
+//   occupation?: string
+// }
+const users = []; 
+const families = {};   // key = userId, value = array of family members:
 
 // Helper: issue JWT
 const makeToken = (user) =>
@@ -65,12 +74,77 @@ app.post('/api/auth/login', async (req, res) => {
 app.get('/api/family', auth, (req, res) => {
   res.json(families[req.user.id]);
 });
-
 app.post('/api/family', auth, (req, res) => {
-  const member = { id: uuid(), ...req.body };
-  families[req.user.id].push(member);
+  const {
+    name,
+    birthDate,
+    spouseId = null,
+    childrenIds = [],
+    location = '',
+    occupation = ''
+  } = req.body;
+
+  if (!name || !birthDate) {
+    return res.status(400).json({ message: 'Name and birthDate are required' });
+  }
+
+  // validate references against this user's existing members
+  const userFam = families[req.user.id];
+  const exists = id => userFam.some(m => m.id === id);
+
+  if (spouseId && !exists(spouseId)) {
+    return res.status(400).json({ message: 'Invalid spouseId' });
+  }
+  for (let c of childrenIds) {
+    if (!exists(c)) {
+      return res.status(400).json({ message: `Child ${c} not found` });
+    }
+  }
+
+  const member = {
+    id: uuid(),
+  name,
+  birthDate,
+  spouseId,
+  childrenIds,
+  location,
+  occupation,
+  createdAt: new Date().toISOString()
+  };
+
+  userFam.push(member);
   res.status(201).json(member);
 });
+
+
+app.put('/api/family/:id', auth, (req, res) => {
+  const userFam = families[req.user.id];
+  const idx = userFam.findIndex(m => m.id === req.params.id);
+  if (idx < 0) {
+    return res.status(404).json({ message: 'Member not found' });
+  }
+
+  // Merge incoming fields over the existing member
+  const updated = {
+    ...userFam[idx],
+    ...req.body
+  };
+  userFam[idx] = updated;
+
+  res.json(updated);
+});
+
+
+app.put('/api/family/:id', auth, (req, res) => {
+  const userFam = families[req.user.id];
+  const idx = userFam.findIndex(m => m.id === req.params.id);
+  if (idx < 0) return res.status(404).json({ message: 'Member not found' });
+
+  const updated = { ...userFam[idx], ...req.body };
+  userFam[idx] = updated;
+  res.json(updated);
+});
+
 
 /* ---------- EMAIL + PDF DEMO ---------- */
 app.post('/api/email/send', auth, (req, res) => {
