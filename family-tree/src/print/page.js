@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api';
+'use client';
 
 // Print page as a pdf file
 document.getElementById('printButton').addEventListener('click', async () => {
