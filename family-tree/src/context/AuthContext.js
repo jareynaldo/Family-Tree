@@ -13,14 +13,20 @@ export function AuthProvider({ children }) {
   const router = useRouter();
 
   useEffect(() => {
-    // Check for stored token and user data
     const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-    
-    if (storedToken && storedUser) {
+    const storedUser  = localStorage.getItem('user');
+  
+    if (storedToken && storedUser && storedUser !== 'undefined') {
       setToken(storedToken);
-      setUser(JSON.parse(storedUser));
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (err) {
+        console.warn('❗️Corrupt user data in localStorage, clearing it out');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
     }
+  
     setLoading(false);
   }, []);
 

@@ -1,71 +1,86 @@
-const http = require("http");
-const path = require("path");
-const fs = require("fs");
-const fsPromises = require("fs").promises;
-const logEvents = require("./logEvents");
-const EventEmitter = require("events");
+/* server.js */
+const express = require('express');
+const cors = require('cors');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const { v4: uuid } = require('uuid');
 
-class Emitter extends EventEmitter {}
-const myEmitter = new Emitter();
-myEmitter.on("log", (msg, fileName) => logEvents(msg, fileName));
+const app  = express();
+const PORT = 3500;
+const JWT_SECRET = 'dev‑replace‑me';   // move to env var in prod
 
-const PORT = process.env.PORT || 3500;
+app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+app.use(express.json());
 
-const server = http.createServer((req, res) => {
-  console.log(req.url, req.method);
-  myEmitter.emit("log", `${req.url}\t${req.method}`, "reqLog.txt");
+// ------------ Faux “database” -------------
+const users = [];      // { id, email, hash, firstName, lastName }
+const families = {};   // key = userId, value = array of family members
+// ------------------------------------------
 
-  const extension = path.extname(req.url);
-  let contentType;
+// Helper: issue JWT
+const makeToken = (user) =>
+  jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
 
-  switch (extension) {
-    case ".css":
-      contentType = "text/css";
-      break;
-    case ".js":
-      contentType = "text/javascript";
-      break;
-    case ".json":
-      contentType = "application/json";
-      break;
-    case ".jpg":
-      contentType = "image/jpeg";
-      break;
-    case ".png":
-      contentType = "image/png";
-      break;
-    case ".txt":
-      contentType = "text/plain";
-      break;
-    default:
-      contentType = "text/html";
+// Middleware: verify JWT
+const auth = (req, res, next) => {
+  const authHdr = req.headers.authorization || '';
+  const [, token] = authHdr.split(' ');
+  if (!token) return res.status(401).json({ message: 'Missing token' });
+
+  try {
+    req.user = jwt.verify(token, JWT_SECRET);
+    next();
+  } catch {
+    res.status(401).json({ message: 'Invalid / expired token' });
   }
+};
 
-  let filePath =
-    contentType === "text/html" && req.url === "/"
-      ? path.join(__dirname, "index.html")
-      : contentType === "text/html" && req.url.slice(-1) === "/"
-      ? path.join(__dirname, req.url, "index.html")
-      : path.join(__dirname, req.url);
+/* ---------- AUTH ROUTES ---------- */
+app.post('/api/auth/register', async (req, res) => {
+  const { email, password, firstName, lastName } = req.body;
+  if (!email || !password) return res.status(400).json({ message: 'Missing fields' });
+  if (users.find(u => u.email === email))
+    return res.status(409).json({ message: 'User already exists' });
 
-  fs.readFile(filePath, (err, data) => {
-    if (err) {
-      if (err.code === "ENOENT") {
-        fs.readFile(path.join(__dirname, "404.html"), (err, data) => {
-          res.writeHead(404, { "Content-Type": "text/html" });
-          res.end(data, "utf8");
-        });
-      } else {
-        res.writeHead(500);
-        res.end(`Server Error: ${err.code}`);
-      }
-    } else {
-      res.writeHead(200, { "Content-Type": contentType });
-      res.end(data, "utf8");
-    }
-  });
+  const hash = await bcrypt.hash(password, 10);
+  const user = { id: uuid(), email, firstName, lastName, hash };
+  users.push(user);
+  families[user.id] = [];                 // initialise empty family list
+
+  const token = makeToken(user);
+  res.status(201).json({ token, user: { id: user.id, email, firstName, lastName } });
 });
 
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.post('/api/auth/login', async (req, res) => {
+  const { email, password } = req.body;
+  const user = users.find(u => u.email === email);
+  if (!user || !(await bcrypt.compare(password, user.hash)))
+    return res.status(401).json({ message: 'Invalid credentials' });
+
+  const token = makeToken(user);
+  res.json({ token, user: { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName } });
 });
+
+/* ---------- FAMILY ROUTES ---------- */
+app.get('/api/family', auth, (req, res) => {
+  res.json(families[req.user.id]);
+});
+
+app.post('/api/family', auth, (req, res) => {
+  const member = { id: uuid(), ...req.body };
+  families[req.user.id].push(member);
+  res.status(201).json(member);
+});
+
+/* ---------- EMAIL + PDF DEMO ---------- */
+app.post('/api/email/send', auth, (req, res) => {
+  console.log(`[EMAIL] from ${req.user.email}`, req.body);
+  res.json({ message: 'Email (stub) sent' });
+});
+
+app.post('/api/convert', auth, (req, res) => {
+  res.type('application/pdf').send(Buffer.from('%PDF-1.4\n%Mock\n'));
+});
+
+/* ---------- START ---------- */
+app.listen(PORT, () => console.log(`✅ API on http://localhost:${PORT}`));

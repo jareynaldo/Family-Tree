@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'http://localhost:3500/api';
 
 // Print page as a pdf file
 document.getElementById('printButton').addEventListener('click', async () => {

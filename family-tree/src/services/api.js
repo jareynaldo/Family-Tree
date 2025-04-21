@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'http://localhost:3500/api';
 
 // Helper function to handle API responses
 const handleResponse = async (response) => {
@@ -9,79 +9,85 @@ const handleResponse = async (response) => {
   return data;
 };
 
+function authHeaders(token) {
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { Authorization: `Bearer ${token}` }),
+  };
+}
+
+
 // Auth API calls
 export const authService = {
-  register: async (userData) => {
-    const response = await fetch(`${API_URL}/auth/register`, {
+  register(userData) {
+    return fetch(`${API_URL}/auth/register`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
+      headers: authHeaders(),
       body: JSON.stringify(userData),
-    });
-    return handleResponse(response);
+    }).then(handleResponse);
   },
 
-  login: async (credentials) => {
-    const response = await fetch(`${API_URL}/auth/login`, {
+  login(credentials) {
+    return fetch(`${API_URL}/auth/login`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
+      headers: authHeaders(),
       body: JSON.stringify(credentials),
-    });
-    return handleResponse(response);
+    }).then(handleResponse);
   },
 };
 
 // Family API calls
 export const familyService = {
-  getFamilyMembers: async (token) => {
-    const response = await fetch(`${API_URL}/family`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-      credentials: 'include',
-    });
-    return handleResponse(response);
+  getFamilyMembers(token) {
+    return fetch(`${API_URL}/family`, {
+      headers: authHeaders(token),
+    }).then(handleResponse);
   },
 
-  addFamilyMember: async (memberData, token) => {
-    const response = await fetch(`${API_URL}/family`, {
+  addFamilyMember(memberData, token) {
+    return fetch(`${API_URL}/family`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      credentials: 'include',
+      headers: authHeaders(token),
       body: JSON.stringify(memberData),
-    });
-    return handleResponse(response);
+    }).then(handleResponse);
   },
 
-  updateFamilyMember: async (id, memberData, token) => {
-    const response = await fetch(`${API_URL}/family/${id}`, {
+  updateFamilyMember(id, memberData, token) {
+    return fetch(`${API_URL}/family/${id}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      credentials: 'include',
+      headers: authHeaders(token),
       body: JSON.stringify(memberData),
-    });
-    return handleResponse(response);
+    }).then(handleResponse);
   },
 
-  deleteFamilyMember: async (id, token) => {
-    const response = await fetch(`${API_URL}/family/${id}`, {
+  deleteFamilyMember(id, token) {
+    return fetch(`${API_URL}/family/${id}`, {
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-      credentials: 'include',
-    });
-    return handleResponse(response);
+      headers: authHeaders(token),
+    }).then(handleResponse);
   },
-}; 
+};
+
+export const emailService = {
+  sendEmail(data, token) {
+    return fetch(`${API_URL}/email/send`, {
+      method: 'POST',
+      headers: authHeaders(token),
+      body: JSON.stringify(data),
+    }).then(handleResponse);
+  },
+};
+
+export const convertService = {
+  toPdf(htmlContent, token) {
+    return fetch(`${API_URL}/convert`, {
+      method: 'POST',
+      headers: authHeaders(token),
+      body: JSON.stringify({ htmlContent }),
+    })
+    .then(res => {
+      if (!res.ok) throw new Error('PDF conversion failed');
+      return res.blob();
+    });
+  },
+};

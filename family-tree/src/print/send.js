@@ -1,6 +1,6 @@
 import { authService, familyService } from "family-tree/src/services/api.js";
 
-const API_URL = "http://localhost:3000/api";
+const API_URL = "http://localhost:3500/api";
 
 // Email sending implementation
 const EmailSender = async (Data, token) => {
