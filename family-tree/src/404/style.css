@@ -1,0 +1,22 @@
+body {
+  font-family: 'HK Grotesk', sans-serif;
+  text-align: center;
+  padding: 50px;
+  background-color: #FFFFFF; 
+  color: #EC5F65; 
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+@font-face {
+  font-family: 'HK Grotesk';
+  src: url('path-to-HKGrotesk-Regular.otf') format('opentype');
+  font-weight: normal;
+}
+@font-face {
+  font-family: 'HK Grotesk';
+  src: url('path-to-HKGrotesk-Bold.otf') format('opentype');
+  font-weight: bold;
+}
