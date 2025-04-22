@@ -8,33 +8,37 @@ export default function AddMemberForm({ onClose }) {
   const [form, setForm] = useState({
     name: '',
     birthDate: '',
-    spouseId: '',
-    childrenIds: [],
+    spouseName: '',
+    childrenRaw: '',      // comma‑separated names
     location: '',
-    occupation: ''
+    occupation: '',
   });
   const [error, setError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleChildrenChange = (e) => {
-    setForm(prev => ({
-      ...prev,
-      childrenIds: e.target.value
-        .split(',')
-        .map(s => s.trim())
-        .filter(s => s)
-    }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    // turn comma‑string into array of trimmed child names
+    const childrenNames = form.childrenRaw
+      .split(',')
+      .map((s) => s.trim())
+      .filter((s) => s);
+
     try {
-      await addMember(form);
+      await addMember({
+        name: form.name,
+        birthDate: form.birthDate,
+        spouseName: form.spouseName || null,
+        childrenNames,
+        location: form.location,
+        occupation: form.occupation,
+      });
       onClose();
     } catch (err) {
       setError(err.message || 'Failed to add member');
@@ -42,61 +46,116 @@ export default function AddMemberForm({ onClose }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4 bg-white p-6 rounded-lg shadow-lg w-full max-w-md"
+    >
       {error && <div className="text-red-600">{error}</div>}
 
-      <input
-        type="text"
-        name="name"
-        placeholder="Name"
-        required
-        onChange={handleChange}
-        className="input-field"
-      />
+      {/* Name */}
+      <div>
+        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+          Name:
+        </label>
+        <input
+          id="name"
+          name="name"
+          type="text"
+          required
+          placeholder="John Doe"
+          value={form.name}
+          onChange={handleChange}
+          className="input-field mt-1"
+        />
+      </div>
 
-      <input
-        type="date"
-        name="birthDate"
-        placeholder="Birth Date"
-        required
-        onChange={handleChange}
-        className="input-field"
-      />
+      {/* Birth Date */}
+      <div>
+        <label htmlFor="birthDate" className="block text-sm font-medium text-gray-700">
+          Birth Date:
+        </label>
+        <input
+          id="birthDate"
+          name="birthDate"
+          type="date"
+          required
+          value={form.birthDate}
+          onChange={handleChange}
+          className="input-field mt-1"
+        />
+      </div>
 
-      <input
-        type="text"
-        name="spouseId"
-        placeholder="Spouse ID (optional)"
-        onChange={handleChange}
-        className="input-field"
-      />
+      {/* Spouse Name */}
+      <div>
+        <label htmlFor="spouseName" className="block text-sm font-medium text-gray-700">
+          Spouse Name (optional):
+        </label>
+        <input
+          id="spouseName"
+          name="spouseName"
+          type="text"
+          placeholder="Jane Doe"
+          value={form.spouseName}
+          onChange={handleChange}
+          className="input-field mt-1"
+        />
+      </div>
 
-      <input
-        type="text"
-        name="childrenIds"
-        placeholder="Children IDs (comma‑separated)"
-        onChange={handleChildrenChange}
-        className="input-field"
-      />
+      {/* Children Names */}
+      <div>
+        <label htmlFor="childrenRaw" className="block text-sm font-medium text-gray-700">
+          Children Names (comma‑separated):
+        </label>
+        <input
+          id="childrenRaw"
+          name="childrenRaw"
+          type="text"
+          placeholder="Alice Doe, Bob Doe"
+          value={form.childrenRaw}
+          onChange={handleChange}
+          className="input-field mt-1"
+        />
+      </div>
 
-      <input
-        type="text"
-        name="location"
-        placeholder="Location (optional)"
-        onChange={handleChange}
-        className="input-field"
-      />
+      {/* Location */}
+      <div>
+        <label htmlFor="location" className="block text-sm font-medium text-gray-700">
+          Location (optional):
+        </label>
+        <input
+          id="location"
+          name="location"
+          type="text"
+          placeholder="San Francisco, CA"
+          value={form.location}
+          onChange={handleChange}
+          className="input-field mt-1"
+        />
+      </div>
 
-      <input
-        type="text"
-        name="occupation"
-        placeholder="Occupation (optional)"
-        onChange={handleChange}
-        className="input-field"
-      />
+      {/* Occupation */}
+      <div>
+        <label htmlFor="occupation" className="block text-sm font-medium text-gray-700">
+          Occupation (optional):
+        </label>
+        <input
+          id="occupation"
+          name="occupation"
+          type="text"
+          placeholder="Software Engineer"
+          value={form.occupation}
+          onChange={handleChange}
+          className="input-field mt-1"
+        />
+      </div>
 
+      {/* Actions */}
       <div className="flex justify-end space-x-2">
-        <button type="button" onClick={onClose} className="btn-secondary">
+        <button
+          type="button"
+          onClick={onClose}
+          className="btn-secondary"
+        >
           Cancel
         </button>
         <button type="submit" className="btn-primary">

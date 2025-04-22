@@ -1,4 +1,5 @@
 'use client';
+
 import { useState } from 'react';
 import { useFamily }  from '@/context/FamilyContext';
 import StatsCard       from '@/components/StatsCard';
@@ -7,34 +8,37 @@ import QuickActions    from '@/components/QuickActions';
 import AddMemberForm   from '@/components/AddMemberForm';
 
 export default function Dashboard() {
-  const { members, loading, refresh } = useFamily();
-  const [openForm, setOpenForm] = useState(false);
+  const { members, loading, refresh, addMember } = useFamily();
+  const [showForm, setShowForm] = useState(false);
 
-  if (loading) return <p>Loading…</p>;
+  if (loading) return <p className="p-8 text-center">Loading…</p>;
 
   return (
-    <>
+    <div className="px-12 py-8 max-w-7xl mx-auto space-y-12">
+      {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-3xl font-bold text-text">Dashboard</h2>
+        <h2 className="text-3xl font-bold">Dashboard</h2>
         <QuickActions
-          onAdd={() => setOpenForm(true)}
-          onViewTree={() => window.location.href = "/tree"}
+          onAdd={() => setShowForm(true)}
+          onViewTree={() => window.location.href = '/tree'}
         />
       </div>
 
+      {/* Stats + Activity */}
       <StatsCard members={members} />
       <RecentActivity members={members} />
 
-      {openForm && (
+      {/* Modal Add Member */}
+      {showForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <AddMemberForm
             onClose={() => {
-              setOpenForm(false);
+              setShowForm(false);
               refresh();
             }}
           />
         </div>
       )}
-    </>
+    </div>
   );
 }

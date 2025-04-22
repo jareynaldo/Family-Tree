@@ -1,33 +1,34 @@
 'use client';
 
-function calcAge(birthDate) {
-  const diff = Date.now() - new Date(birthDate).getTime();
-  return Math.floor(diff / (1000*60*60*24*365));
-}
-
-// Depth‑first search to compute max generation depth
 function computeGenerations(members) {
-  const map = new Map(members.map(m => [m.id, m]));
+  if (!Array.isArray(members) || members.length === 0) return 0;
+
+  const mapByName = new Map(members.map(m => [m.name, m]));
   let maxGen = 0;
 
-  function dfs(id, depth, seen) {
+  function dfs(name, depth, seen) {
     maxGen = Math.max(maxGen, depth);
-    const member = map.get(id);
-    for (const childId of member.childrenIds) {
-      if (!seen.has(childId)) {
-        seen.add(childId);
-        dfs(childId, depth + 1, seen);
+    const member = mapByName.get(name);
+    const children = member?.childrenNames || [];
+
+    for (const child of children) {
+      if (!seen.has(child)) {
+        seen.add(child);
+        dfs(child, depth + 1, seen);
       }
     }
   }
 
-  members.forEach(m => dfs(m.id, 1, new Set([m.id])));
+  for (const m of members) {
+    dfs(m.name, 1, new Set([m.name]));
+  }
+
   return maxGen;
 }
 
-export default function StatsCard({ members }) {
-  const total = members.length;
-  const generations = members.length ? computeGenerations(members) : 0;
+export default function StatsCard({ members = [] }) {
+  const total = Array.isArray(members) ? members.length : 0;
+  const generations = total ? computeGenerations(members) : 0;
 
   return (
     <div className="card mb-6">
