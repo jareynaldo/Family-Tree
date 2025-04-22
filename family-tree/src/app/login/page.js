@@ -63,9 +63,9 @@ export default function Login() {
           </button>
 
           <p className="text-center text-text/70">
-            Don’t have an account?{' '}
-            <Link href="/register">
-              <a className="btn-secondary inline-block">Register</a>
+            Don't have an account?{' '}
+            <Link href="/register" className="text-primary hover:underline">
+              Register
             </Link>
           </p>
         </form>
