@@ -72,8 +72,10 @@ app.post('/api/auth/login', async (req, res) => {
 
 /* ---------- FAMILY ROUTES ---------- */
 app.get('/api/family', auth, (req, res) => {
-  res.json(families[req.user.id]);
+  const userFam = families[req.user.id] || [];
+  res.json(userFam);
 });
+
 app.post('/api/family', auth, (req, res) => {
   const {
     name,
@@ -101,15 +103,15 @@ app.post('/api/family', auth, (req, res) => {
     }
   }
 
-  const member = {
-    id: uuid(),
-  name,
-  birthDate,
-  spouseId,
-  childrenIds,
-  location,
-  occupation,
-  createdAt: new Date().toISOString()
+      const member = {
+        id: uuid(),
+        name,
+        birthDate,
+        spouseId,
+        childrenIds,
+        location,
+        occupation,
+        createdAt: new Date().toISOString()
   };
 
   userFam.push(member);

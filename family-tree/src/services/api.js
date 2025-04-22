@@ -1,23 +1,30 @@
 const API_URL = 'http://localhost:3500/api';
 
-// Helper function to handle API responses
+// build standard JSON + auth headers
+function authHeaders(token) {
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
+
+// resilient JSON parsing
 const handleResponse = async (response) => {
-  const data = await response.json();
+  let data = {};
+  try {
+    const text = await response.text();
+    data = text ? JSON.parse(text) : {};
+  } catch (err) {
+    console.warn('Failed to parse JSON:', err);
+  }
   if (!response.ok) {
-    throw new Error(data.message || 'Something went wrong');
+    const msg = data.message || response.statusText || 'Something went wrong';
+    throw new Error(msg);
   }
   return data;
 };
 
-function authHeaders(token) {
-  return {
-    'Content-Type': 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` }),
-  };
-}
-
-
-// Auth API calls
+// Auth API
 export const authService = {
   register(userData) {
     return fetch(`${API_URL}/auth/register`, {
@@ -36,7 +43,7 @@ export const authService = {
   },
 };
 
-// Family API calls
+// Family API
 export const familyService = {
   getFamilyMembers(token) {
     return fetch(`${API_URL}/family`, {
@@ -68,6 +75,7 @@ export const familyService = {
   },
 };
 
+// Email + PDF
 export const emailService = {
   sendEmail(data, token) {
     return fetch(`${API_URL}/email/send`, {
@@ -85,9 +93,9 @@ export const convertService = {
       headers: authHeaders(token),
       body: JSON.stringify({ htmlContent }),
     })
-    .then(res => {
-      if (!res.ok) throw new Error('PDF conversion failed');
-      return res.blob();
-    });
+      .then(res => {
+        if (!res.ok) throw new Error('PDF conversion failed');
+        return res.blob();
+      });
   },
 };
