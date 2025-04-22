@@ -1,24 +1,75 @@
-# Family-Tree
-## Overview
+# Family‑Tree
 
-Family-tree is a user-friendly, web-based family tree app that connects relatives through an organized, interactive family tree. This tool enables families to expand their tree while ensuring data privacy and security.
+An interactive, secure web app for creating and managing your family tree.
 
-### Project Features
+## Features
 
-← User Authentication: Efficient Login/Logout Process
+- **User Authentication**  
+  Register, log in, and log out securely via JWT.  
+- **Family Member CRUD**  
+  Add, edit, and delete members (names, birthdates, spouses, children, location, occupation).  
+- **Visual Tree View**  
+  Dynamic D3‑powered tree graph showing relationships.  
+- **Design**  
+  Clean Tailwind CSS styling.
 
-← Family Tree Editing: A visually engaging way to view family connections.
+---
 
-### Technologies Used 
+## 🛠 Tech Stack
 
-Programming Languages & Frameworks:
+- **Frontend:** Next.js  (React) + Tailwind CSS  
+- **Backend:** Express.js + Node.js  
+- **Auth & Data:** JWT, bcrypt, in‑memory (replaceable with any DB)  
+- **Visualization:** react‑d3‑tree
 
-Node.js
+---
 
-React.js
+## ⚙️ Quick Start
 
-### Setup Instructions
+1. **Clone & Install**  
+   # Family‑Tree
 
-#### 1. Clone Repository
+An interactive, secure web app for creating and managing your family tree.
 
-#### 2. Install dependencies
+## Features
+
+- **User Authentication**  
+  Register, log in, and log out securely via JWT.  
+- **Family Member CRUD**  
+  Add, edit, and delete members (names, birthdates, spouses, children, location, occupation).  
+- **Visual Tree View**  
+  Dynamic D3‑powered tree graph showing relationships.  
+- **Design**  
+  Clean Tailwind CSS styling.
+
+---
+
+## 🛠 Tech Stack
+
+- **Frontend:** Next.js  (React) + Tailwind CSS  
+- **Backend:** Express.js + Node.js  
+- **Auth & Data:** JWT, bcrypt, in‑memory (replaceable with any DB)  
+- **Visualization:** react‑d3‑tree
+
+---
+
+## ⚙️ Quick Start
+
+1. **Clone & Install**  
+   ```bash
+   git clone https://github.com/jareynaldo/Family-Tree
+   cd family‑tree
+   npm install
+2. **Start the Server**  
+In one terminal, run:
+ cd server 
+ node server.js
+
+ The API will listen on http://localhost:3500
+
+2. **Start the Frontend**  
+In a second terminal, run:
+cd family-tree
+npm run dev
+
+The Next.js app will be available at http://localhost:3000
