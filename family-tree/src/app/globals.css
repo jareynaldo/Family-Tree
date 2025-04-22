@@ -1,55 +1,38 @@
+/* src/app/globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Base theming */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --bg: theme("colors.background");
+  --fg: theme("colors.text");
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  @apply bg-background text-text font-sans;
 }
 
-@layer components {
-  .btn-primary {
-    @apply bg-[var(--primary)] hover:bg-[var(--primary-light)] text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg;
-  }
-  
-  .btn-secondary {
-    @apply bg-white hover:bg-gray-50 text-[var(--primary)] font-semibold py-3 px-6 rounded-lg transition-all duration-200 border border-[var(--primary-light)] shadow-sm hover:shadow;
-  }
+/* Utility classes to mirror your landing buttons */
+.btn-primary {
+  @apply bg-primary hover:bg-primary-dark text-white font-medium 
+         py-3 px-6 rounded shadow transition;
+}
+.btn-secondary {
+  @apply bg-white text-primary border border-primary 
+         py-3 px-6 rounded hover:bg-primary hover:text-white
+         shadow-sm transition;
+}
 
-  .card {
-    @apply bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-all duration-200 border border-gray-100;
-  }
+/* Container to center content */
+.container {
+  @apply mx-auto max-w-4xl px-4;
+}
 
-  .input-field {
-    @apply w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary-light)] focus:border-transparent transition-all duration-200;
-  }
-
-  .nav-link {
-    @apply text-[var(--text-light)] hover:text-[var(--primary)] transition-colors duration-200;
-  }
-
-  .section-title {
-    @apply text-2xl font-bold text-[var(--primary)] mb-4;
-  }
-
-  .tree-node {
-    @apply bg-white rounded-full w-16 h-16 flex items-center justify-center shadow-md border-2 border-[var(--primary-light)] transition-all duration-200 hover:scale-110;
-  }
-
-  .tree-connector {
-    @apply border-l-2 border-[var(--primary-light)] h-8;
-  }
+/* Card and headings */
+.card {
+  @apply bg-white rounded-xl shadow-lg p-6 mb-6;
+}
+.section-title {
+  @apply text-2xl font-semibold text-primary mb-4;
 }

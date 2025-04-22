@@ -1,38 +1,40 @@
 'use client';
-
 import { useState } from 'react';
-import { useFamily }  from '@/context/FamilyContext';  // you’ll need this later
-import StatsCard      from '@/components/StatsCard';
-import RecentActivity from '@/components/RecentActivity';
-import QuickActions   from '@/components/QuickActions';
-import AddMemberForm  from '@/components/AddMemberForm';
-
-
+import { useFamily }  from '@/context/FamilyContext';
+import StatsCard       from '@/components/StatsCard';
+import RecentActivity  from '@/components/RecentActivity';
+import QuickActions    from '@/components/QuickActions';
+import AddMemberForm   from '@/components/AddMemberForm';
 
 export default function Dashboard() {
   const { members, loading, refresh } = useFamily();
-  const [showForm, setShowForm] = useState(false);
+  const [openForm, setOpenForm] = useState(false);
 
-  if (loading) return <p className="p-8">Loading…</p>;
+  if (loading) return <p>Loading…</p>;
 
   return (
-    <div className="p-8">
+    <>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-3xl font-bold text-text">Dashboard</h2>
+        <QuickActions
+          onAdd={() => setOpenForm(true)}
+          onViewTree={() => window.location.href = "/tree"}
+        />
+      </div>
+
       <StatsCard members={members} />
+      <RecentActivity members={members} />
 
-      <QuickActions
-        onAdd={() => setShowForm(true)}
-        onViewTree={() => window.location.href = '/tree'} 
-      />
-
-      {showForm && (
+      {openForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <AddMemberForm
-            onClose={() => { setShowForm(false); refresh(); }}
+            onClose={() => {
+              setOpenForm(false);
+              refresh();
+            }}
           />
         </div>
       )}
-
-      <RecentActivity members={members} />
-    </div>
+    </>
   );
 }
