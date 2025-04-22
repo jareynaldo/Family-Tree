@@ -1,24 +1,21 @@
-// src/context/FamilyContext.js
 'use client';
 
 import { createContext, useContext, useState, useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from './AuthContext';
 import { familyService } from '@/services/api';
 
 const FamilyContext = createContext();
 
 export function FamilyProvider({ children }) {
-  const { user, token, loading: authLoading } = useAuth();
+  const { token } = useAuth();
   const [members, setMembers] = useState([]);
-  const [loading, setLoading]   = useState(true);
+  const [loading, setLoading] = useState(true);
 
   const refresh = async () => {
     setLoading(true);
     try {
       const data = await familyService.getFamilyMembers(token);
       setMembers(data);
-    } catch {
-      setMembers([]);
     } finally {
       setLoading(false);
     }
@@ -32,18 +29,33 @@ export function FamilyProvider({ children }) {
     }
   }, [token]);
 
-  const addMember = async (md) => {
-    const m = await familyService.addFamilyMember(md, token);
+  const addMember = async (memberData) => {
+    const m = await familyService.addFamilyMember(memberData, token);
     setMembers(prev => [...prev, m]);
   };
-  const updateFamilyMember = async (id, updates) => {
-    const m = await familyService.updateFamilyMember(id, updates, token);
-    setMembers(prev => prev.map(x => x.id === id ? m : x));
+
+  const updateFamilyMember = async (id, memberData) => {
+    const updated = await familyService.updateFamilyMember(id, memberData, token);
+    setMembers(prev =>
+      prev.map(m => (m.id === id ? updated : m))
+    );
+  };
+
+  const deleteFamilyMember = async (id) => {
+    await familyService.deleteFamilyMember(id, token);
+    setMembers(prev => prev.filter(m => m.id !== id));
   };
 
   return (
     <FamilyContext.Provider
-      value={{ user, token, authLoading, members, loading, refresh, addMember, updateFamilyMember }}
+      value={{
+        members,
+        loading,
+        refresh,
+        addMember,
+       updateFamilyMember,
+       deleteFamilyMember,
+      }}
     >
       {children}
     </FamilyContext.Provider>

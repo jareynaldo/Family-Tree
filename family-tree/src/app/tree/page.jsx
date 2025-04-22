@@ -98,9 +98,7 @@ export default function FamilyTreePage() {
          >
            Edit Members
          </button>
-          <Link href="/dashboard" className="btn-secondary">
-            Back to Dashboard
-          </Link>
+          
         </div>
       </div>
 

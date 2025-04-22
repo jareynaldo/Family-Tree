@@ -131,6 +131,16 @@ app.put('/api/family/:id', auth, (req, res) => {
   userFam[idx] = { ...userFam[idx], ...req.body };
   res.json(userFam[idx]);
 });
+app.delete('/api/family/:id', auth, (req, res) => {
+  const userFam = families[req.user.id] || [];
+  const idx = userFam.findIndex(m => m.id === req.params.id);
+  if (idx === -1) {
+    return res.status(404).json({ message: 'Member not found' });
+  }
+  // remove from array
+  userFam.splice(idx, 1);
+  res.json({ message: 'Member deleted' });
+});
 
 /* ---------- EMAIL + PDF DEMO (unchanged) ---------- */
 

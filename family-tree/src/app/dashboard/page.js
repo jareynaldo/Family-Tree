@@ -43,7 +43,6 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-blue-50">
-      <Navbar />
 
       <div className="container mx-auto px-8 py-6 space-y-8">
         {/* Header */}

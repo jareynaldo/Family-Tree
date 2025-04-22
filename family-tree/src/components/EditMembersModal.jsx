@@ -1,25 +1,28 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useFamily }            from '@/context/FamilyContext';
+import { useFamily } from '@/context/FamilyContext';
 
-export default function EditMembersModal({ members = [], onClose }) {
-  const { updateFamilyMember } = useFamily();
+export default function EditMembersModal({ members, onClose }) {
+  const {
+    updateFamilyMember,
+    deleteFamilyMember
+  } = useFamily();
 
-  // 1) track which member is selected
-  const [selectedId, setSelectedId] = useState(members[0]?.id || '');
+  // which member is selected
+  const [selectedId, setSelectedId] = useState(members[0]?.id);
 
-  // 2) form state
+  // the form state
   const [form, setForm] = useState({
-    name: '',
-    birthDate: '',
-    spouseName: '',
+    name:        '',
+    birthDate:   '',
+    spouseName:  '',
     childrenRaw: '',
-    location: '',
-    occupation: '',
+    location:    '',
+    occupation:  '',
   });
 
-  // 3) when selectedId or members list changes, re‑populate form
+  // whenever selectedId (or members) changes, re-fill form
   useEffect(() => {
     const m = members.find(m => m.id === selectedId);
     if (!m) return;
@@ -33,147 +36,136 @@ export default function EditMembersModal({ members = [], onClose }) {
     });
   }, [selectedId, members]);
 
-  // 4) handle field changes
-  const handleChange = (e) => {
+  const handleSelect = e => setSelectedId(e.target.value);
+
+  const handleChange = e => {
     const { name, value } = e.target;
-    setForm(f => ({ ...f, [name]: value }));
+    setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  // 5) submit updated member
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const updated = {
+  const handleSave = async () => {
+    const childrenNames = form.childrenRaw
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    await updateFamilyMember(selectedId, {
       name:         form.name,
       birthDate:    form.birthDate,
       spouseName:   form.spouseName || null,
-      childrenNames: form.childrenRaw
-        .split(',')
-        .map(s => s.trim())
-        .filter(Boolean),
+      childrenNames,
       location:     form.location,
       occupation:   form.occupation,
-    };
-    await updateFamilyMember(selectedId, updated);
+    });
+    onClose();
+  };
+
+  const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete this member?')) return;
+    await deleteFamilyMember(selectedId);
     onClose();
   };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white rounded-lg p-6 w-full max-w-md space-y-4"
-      >
-        <h2 className="text-xl font-bold">Edit a Family Member</h2>
+      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+        <h2 className="text-xl font-bold mb-4">Edit a Family Member</h2>
 
-        {/* Select which member to edit */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Select member
-          </label>
-          <select
-            value={selectedId}
-            onChange={e => setSelectedId(e.target.value)}
-            className="mt-1 block w-full border-gray-300 rounded-md"
-          >
-            {members.map(m => (
-              <option key={m.id} value={m.id}>
-                {m.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        {/* select which member */}
+        <label className="block mb-2 font-medium">Select member</label>
+        <select
+          value={selectedId}
+          onChange={handleSelect}
+          className="w-full mb-4 p-2 border rounded"
+        >
+          {members.map(m => (
+            <option key={m.id} value={m.id}>{m.name}</option>
+          ))}
+        </select>
 
         {/* Name */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Name</label>
-          <input
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            className="mt-1 w-full input-field"
-            required
-          />
-        </div>
+        <label className="block text-sm font-medium">Name</label>
+        <input
+          name="name"
+          value={form.name}
+          onChange={handleChange}
+          className="w-full mb-3 p-2 border rounded"
+        />
 
         {/* Birth Date */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Birth Date</label>
-          <input
-            name="birthDate"
-            type="date"
-            value={form.birthDate}
-            onChange={handleChange}
-            className="mt-1 w-full input-field"
-            required
-          />
-        </div>
+        <label className="block text-sm font-medium">Birth Date</label>
+        <input
+          name="birthDate"
+          type="date"
+          value={form.birthDate}
+          onChange={handleChange}
+          className="w-full mb-3 p-2 border rounded"
+        />
 
-        {/* Spouse */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Spouse Name
-          </label>
-          <input
-            name="spouseName"
-            value={form.spouseName}
-            onChange={handleChange}
-            className="mt-1 w-full input-field"
-          />
-        </div>
+        {/* Spouse Name */}
+        <label className="block text-sm font-medium">Spouse Name</label>
+        <input
+          name="spouseName"
+          value={form.spouseName}
+          onChange={handleChange}
+          placeholder="(optional)"
+          className="w-full mb-3 p-2 border rounded"
+        />
 
         {/* Children */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Children (comma‑separated)
-          </label>
-          <input
-            name="childrenRaw"
-            value={form.childrenRaw}
-            onChange={handleChange}
-            className="mt-1 w-full input-field"
-          />
-        </div>
+        <label className="block text-sm font-medium">Children (comma‑separated)</label>
+        <input
+          name="childrenRaw"
+          value={form.childrenRaw}
+          onChange={handleChange}
+          placeholder="e.g. Alice, Bob"
+          className="w-full mb-3 p-2 border rounded"
+        />
 
         {/* Location */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Location
-          </label>
-          <input
-            name="location"
-            value={form.location}
-            onChange={handleChange}
-            className="mt-1 w-full input-field"
-          />
-        </div>
+        <label className="block text-sm font-medium">Location</label>
+        <input
+          name="location"
+          value={form.location}
+          onChange={handleChange}
+          placeholder="(optional)"
+          className="w-full mb-3 p-2 border rounded"
+        />
 
         {/* Occupation */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Occupation
-          </label>
-          <input
-            name="occupation"
-            value={form.occupation}
-            onChange={handleChange}
-            className="mt-1 w-full input-field"
-          />
-        </div>
+        <label className="block text-sm font-medium">Occupation</label>
+        <input
+          name="occupation"
+          value={form.occupation}
+          onChange={handleChange}
+          placeholder="(optional)"
+          className="w-full mb-4 p-2 border rounded"
+        />
 
         {/* Actions */}
-        <div className="flex justify-end space-x-2 pt-4">
+        <div className="flex justify-between">
           <button
-            type="button"
-            onClick={onClose}
-            className="btn-secondary"
+            onClick={handleDelete}
+            className="btn-secondary px-4 py-2"
           >
-            Cancel
+            Delete
           </button>
-          <button type="submit" className="btn-primary">
-            Save Changes
-          </button>
+          <div className="space-x-2">
+            <button
+              onClick={onClose}
+              className="btn-secondary px-4 py-2"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              className="btn-primary px-4 py-2"
+            >
+              Save Changes
+            </button>
+          </div>
         </div>
-      </form>
+      </div>
     </div>
   );
 }
