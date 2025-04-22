@@ -1,12 +1,15 @@
 'use client';
-
 import Link from 'next/link';
 
-export default function QuickActions({ onAdd, onViewTree }) {
+export default function QuickActions({ onAdd }) {
   return (
-    <div className="flex gap-4 mb-6">
-      <button onClick={onAdd} className="btn-primary">Add Member</button>
-      <button onClick={onViewTree} className="btn-secondary">View Tree</button>
+    <div className="flex gap-4">
+      <button onClick={onAdd} className="btn-primary">
+        Add Member
+      </button>
+      <Link href="/tree" className="btn-secondary">
+        View Tree
+      </Link>
     </div>
   );
 }

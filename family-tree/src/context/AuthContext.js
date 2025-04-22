@@ -6,6 +6,7 @@ import { authService } from '../services/api';
 
 const AuthContext = createContext();
 
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
@@ -63,6 +64,8 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('user');
     router.push('/');
   };
+  
+  const value = { user, token, loading, login, register, logout };
 
   return (
     <AuthContext.Provider value={{ user, token, login, register, logout, loading }}>
