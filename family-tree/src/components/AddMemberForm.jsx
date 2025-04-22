@@ -1,3 +1,4 @@
+// src/components/AddMemberForm.jsx
 'use client';
 
 import { useState } from 'react';
@@ -6,42 +7,41 @@ import { useFamily } from '@/context/FamilyContext';
 export default function AddMemberForm({ onClose }) {
   const { addMember } = useFamily();
   const [form, setForm] = useState({
-    name: '',
-    birthDate: '',
-    spouseName: '',
-    childrenRaw: '',      // comma‑separated names
-    location: '',
-    occupation: '',
+    name:        '',
+    birthDate:   '',
+    spouseName:  '',
+    childrenRaw: '',
+    location:    '',
+    occupation:  '',
   });
   const [error, setError] = useState('');
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm(f => ({ ...f, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setError('');
 
-    // turn comma‑string into array of trimmed child names
     const childrenNames = form.childrenRaw
       .split(',')
-      .map((s) => s.trim())
-      .filter((s) => s);
+      .map(s => s.trim())
+      .filter(Boolean);
 
     try {
       await addMember({
-        name: form.name,
-        birthDate: form.birthDate,
-        spouseName: form.spouseName || null,
+        name:         form.name,
+        birthDate:    form.birthDate,
+        spouseName:   form.spouseName || null,
         childrenNames,
-        location: form.location,
-        occupation: form.occupation,
+        location:     form.location,
+        occupation:   form.occupation,
       });
       onClose();
     } catch (err) {
-      setError(err.message || 'Failed to add member');
+      setError(err.message);
     }
   };
 
@@ -54,11 +54,8 @@ export default function AddMemberForm({ onClose }) {
 
       {/* Name */}
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-          Name:
-        </label>
+        <label className="block text-sm font-medium text-gray-700">Name:</label>
         <input
-          id="name"
           name="name"
           type="text"
           required
@@ -71,11 +68,10 @@ export default function AddMemberForm({ onClose }) {
 
       {/* Birth Date */}
       <div>
-        <label htmlFor="birthDate" className="block text-sm font-medium text-gray-700">
+        <label className="block text-sm font-medium text-gray-700">
           Birth Date:
         </label>
         <input
-          id="birthDate"
           name="birthDate"
           type="date"
           required
@@ -87,11 +83,10 @@ export default function AddMemberForm({ onClose }) {
 
       {/* Spouse Name */}
       <div>
-        <label htmlFor="spouseName" className="block text-sm font-medium text-gray-700">
+        <label className="block text-sm font-medium text-gray-700">
           Spouse Name (optional):
         </label>
         <input
-          id="spouseName"
           name="spouseName"
           type="text"
           placeholder="Jane Doe"
@@ -103,11 +98,10 @@ export default function AddMemberForm({ onClose }) {
 
       {/* Children Names */}
       <div>
-        <label htmlFor="childrenRaw" className="block text-sm font-medium text-gray-700">
+        <label className="block text-sm font-medium text-gray-700">
           Children Names (comma‑separated):
         </label>
         <input
-          id="childrenRaw"
           name="childrenRaw"
           type="text"
           placeholder="Alice Doe, Bob Doe"
@@ -119,11 +113,10 @@ export default function AddMemberForm({ onClose }) {
 
       {/* Location */}
       <div>
-        <label htmlFor="location" className="block text-sm font-medium text-gray-700">
+        <label className="block text-sm font-medium text-gray-700">
           Location (optional):
         </label>
         <input
-          id="location"
           name="location"
           type="text"
           placeholder="San Francisco, CA"
@@ -135,11 +128,10 @@ export default function AddMemberForm({ onClose }) {
 
       {/* Occupation */}
       <div>
-        <label htmlFor="occupation" className="block text-sm font-medium text-gray-700">
+        <label className="block text-sm font-medium text-gray-700">
           Occupation (optional):
         </label>
         <input
-          id="occupation"
           name="occupation"
           type="text"
           placeholder="Software Engineer"
@@ -151,11 +143,7 @@ export default function AddMemberForm({ onClose }) {
 
       {/* Actions */}
       <div className="flex justify-end space-x-2">
-        <button
-          type="button"
-          onClick={onClose}
-          className="btn-secondary"
-        >
+        <button type="button" onClick={onClose} className="btn-secondary">
           Cancel
         </button>
         <button type="submit" className="btn-primary">

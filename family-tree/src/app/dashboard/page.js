@@ -1,44 +1,88 @@
 'use client';
 
-import { useState } from 'react';
-import { useFamily }  from '@/context/FamilyContext';
-import StatsCard       from '@/components/StatsCard';
-import RecentActivity  from '@/components/RecentActivity';
-import QuickActions    from '@/components/QuickActions';
-import AddMemberForm   from '@/components/AddMemberForm';
+import { useEffect, useState } from 'react';
+import { useRouter }            from 'next/navigation';
+import { useAuth }              from '@/context/AuthContext';
+import { useFamily }            from '@/context/FamilyContext';
+
+import Navbar                   from '@/components/Navbar';
+import QuickActions             from '@/components/QuickActions';
+import StatsCard                from '@/components/StatsCard';
+import RecentActivity           from '@/components/RecentActivity';
+import AddMemberForm            from '@/components/AddMemberForm';
+import EditMembersModal         from '@/components/EditMembersModal';
+
+
+
 
 export default function Dashboard() {
-  const { members, loading, refresh, addMember } = useFamily();
-  const [showForm, setShowForm] = useState(false);
+  // ─── 1) Auth & Data Hooks ───────────────────────────────────────
+  const router = useRouter();
+  const { user, token, loading: authLoading } = useAuth();
+  const { members, loading: famLoading, refresh, addMember } = useFamily();
 
-  if (loading) return <p className="p-8 text-center">Loading…</p>;
+  // ─── 2) Local UI State ─────────────────────────────────────────
+  const [showAdd, setShowAdd]   = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
+  
+
+  // ─── 3) Redirect if not logged in ──────────────────────────────
+  useEffect(() => {
+    if (!authLoading && !token) {
+      router.replace('/login');
+    }
+  }, [authLoading, token, router]);
+
+  // ─── 4) Early returns ──────────────────────────────────────────
+  if (authLoading || !token) {
+    return <p className="p-8 text-center">Checking credentials…</p>;
+  }
+  if (famLoading) {
+    return <p className="p-8 text-center">Loading your family…</p>;
+  }
 
   return (
-    <div className="px-12 py-8 max-w-7xl mx-auto space-y-12">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-3xl font-bold">Dashboard</h2>
-        <QuickActions
-          onAdd={() => setShowForm(true)}
-          onViewTree={() => window.location.href = '/tree'}
-        />
-      </div>
+    <div className="min-h-screen bg-blue-50">
+      <Navbar />
 
-      {/* Stats + Activity */}
-      <StatsCard members={members} />
-      <RecentActivity members={members} />
+      <div className="container mx-auto px-8 py-6 space-y-8">
+        {/* Header */}
+        <header className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-gray-800">
+            Dashboard
+          </h1>
+          <QuickActions
+            onAdd={() => setShowAdd(true)}
+            onEdit={() => setShowEdit(true)}
+            onViewTree={() => router.push('/tree')}
+          />
+        </header>
 
-      {/* Modal Add Member */}
-      {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        {/* Stats + Activity */}
+        <StatsCard members={members} />
+        <RecentActivity members={members} />
+
+        {/* Add Member Modal */}
+        {showAdd && (
           <AddMemberForm
             onClose={() => {
-              setShowForm(false);
+              setShowAdd(false);
               refresh();
             }}
           />
-        </div>
-      )}
+        )}
+
+        {/* Edit Members Modal */}
+        {showEdit && (
+          <EditMembersModal
+            members={members}
+            onClose={() => {
+              setShowEdit(false);
+              refresh();
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 }

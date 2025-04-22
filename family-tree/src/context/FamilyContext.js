@@ -1,4 +1,6 @@
+// src/context/FamilyContext.js
 'use client';
+
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { familyService } from '@/services/api';
@@ -6,27 +8,17 @@ import { familyService } from '@/services/api';
 const FamilyContext = createContext();
 
 export function FamilyProvider({ children }) {
-  const { token } = useAuth();
+  const { user, token, loading: authLoading } = useAuth();
   const [members, setMembers] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // Added cache for member lookups
-  const [memberMap, setMemberMap] = useState(new Map());
+  const [loading, setLoading]   = useState(true);
 
   const refresh = async () => {
     setLoading(true);
     try {
       const data = await familyService.getFamilyMembers(token);
-      const validMembers = Array.isArray(data) ? data : [];
-      setMembers(validMembers);
-      
-      // Update member lookup map
-      const newMap = new Map(validMembers.map(m => [m.name, m]));
-      setMemberMap(newMap);
-    } catch (err) {
-      console.error('Failed to load family:', err);
+      setMembers(data);
+    } catch {
       setMembers([]);
-      setMemberMap(new Map());
     } finally {
       setLoading(false);
     }
@@ -36,54 +28,23 @@ export function FamilyProvider({ children }) {
     if (token) refresh();
     else {
       setMembers([]);
-      setMemberMap(new Map());
       setLoading(false);
     }
   }, [token]);
 
-  const addMember = async (memberData) => {
-    const m = await familyService.addFamilyMember(memberData, token);
-    setMembers(prev => {
-      const list = Array.isArray(prev) ? prev : [];
-      return [...list, m];
-    });
-    setMemberMap(prev => new Map([...prev, [m.name, m]]));
+  const addMember = async (md) => {
+    const m = await familyService.addFamilyMember(md, token);
+    setMembers(prev => [...prev, m]);
   };
-
-  // New helper method for tree visualization
-  const getFamilyTreeData = () => {
-    if (!members.length) return null;
-
-    // Find all child references
-    const childReferences = new Set();
-    members.forEach(m => {
-      (m.childrenNames || []).forEach(name => childReferences.add(name));
-    });
-
-    // Find root members (nodes not referenced as children)
-    const roots = members.filter(m => !childReferences.has(m.name));
-    
-    // Recursive tree builder
-    const buildNode = (member) => ({
-      ...member,
-      children: (member.childrenNames || [])
-        .map(name => memberMap.get(name))
-        .filter(Boolean)
-        .map(buildNode)
-    });
-
-    return roots.map(buildNode);
+  const updateFamilyMember = async (id, updates) => {
+    const m = await familyService.updateFamilyMember(id, updates, token);
+    setMembers(prev => prev.map(x => x.id === id ? m : x));
   };
 
   return (
-    <FamilyContext.Provider value={{ 
-      members, 
-      loading, 
-      refresh, 
-      addMember,
-      getFamilyTreeData, // Expose tree builder
-      memberMap // Expose lookup map
-    }}>
+    <FamilyContext.Provider
+      value={{ user, token, authLoading, members, loading, refresh, addMember, updateFamilyMember }}
+    >
       {children}
     </FamilyContext.Provider>
   );
