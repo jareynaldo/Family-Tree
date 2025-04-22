@@ -15,7 +15,7 @@ An interactive, secure web app for creating and managing your family tree.
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 - **Frontend:** Next.js  (React) + Tailwind CSS  
 - **Backend:** Express.js + Node.js  
@@ -24,7 +24,7 @@ An interactive, secure web app for creating and managing your family tree.
 
 ---
 
-## ⚙️ Quick Start
+## Quick Start
 
 1. **Clone & Install**  
    # Family‑Tree
@@ -44,7 +44,7 @@ An interactive, secure web app for creating and managing your family tree.
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 - **Frontend:** Next.js  (React) + Tailwind CSS  
 - **Backend:** Express.js + Node.js  
@@ -53,7 +53,7 @@ An interactive, secure web app for creating and managing your family tree.
 
 ---
 
-## ⚙️ Quick Start
+## Quick Start
 
 1. **Clone & Install**  
    ```bash
@@ -61,15 +61,17 @@ An interactive, secure web app for creating and managing your family tree.
    cd family‑tree
    npm install
 2. **Start the Server**  
-In one terminal, run:
- cd server 
- node server.js
+- In one terminal, run:
+   ```bash
+    cd server 
+    node server.js
 
- The API will listen on http://localhost:3500
+- The API will listen on http://localhost:3500
 
 2. **Start the Frontend**  
-In a second terminal, run:
-cd family-tree
-npm run dev
+- In a second terminal, run:
+    ```bash
+    cd family-tree
+    npm run dev
 
-The Next.js app will be available at http://localhost:3000
+- The Next.js app will be available at http://localhost:3000
