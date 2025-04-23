@@ -68,7 +68,7 @@ An interactive, secure web app for creating and managing your family tree.
 
 - The API will listen on http://localhost:3500
 
-2. **Start the Frontend**  
+3. **Start the Frontend**  
 - In a second terminal, run:
     ```bash
     cd family-tree
