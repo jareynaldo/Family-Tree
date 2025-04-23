@@ -4,7 +4,11 @@ const jwt      = require('jsonwebtoken');
 const bcrypt   = require('bcryptjs');
 const { v4: uuid } = require('uuid');
 
+
+
 const app        = express();
+app.disable('x-powered-by');
+
 const PORT       = 3500;
 const JWT_SECRET = 'dev‑replace‑me';
 
