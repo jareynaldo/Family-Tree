@@ -12,7 +12,6 @@ export default function EditMembersModal({ members, onClose }) {
   // which member is selected
   const [selectedId, setSelectedId] = useState(members[0]?.id);
 
-  // the form state
   const [form, setForm] = useState({
     name:        '',
     birthDate:   '',
@@ -22,7 +21,6 @@ export default function EditMembersModal({ members, onClose }) {
     occupation:  '',
   });
 
-  // whenever selectedId (or members) changes, re-fill form
   useEffect(() => {
     const m = members.find(m => m.id === selectedId);
     if (!m) return;

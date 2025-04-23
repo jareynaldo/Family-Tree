@@ -21,7 +21,6 @@ document.getElementById('printButton').addEventListener('click', async () => {
                 link.click();
                 window.URL.revokeObjectURL(url);
                 break;
-            //THROW error message
             default:
                 throw new Error('Failed to print to PDF');
         }

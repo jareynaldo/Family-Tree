@@ -2,7 +2,6 @@
 import { useState } from 'react';
 
 export default function EditMemberForm({ member, onSave, onCancel }) {
-  // seed with the currently‑selected member
   const [form, setForm] = useState({
     name: member.name,
     birthDate: member.birthDate,

@@ -9,7 +9,6 @@ export default function RecentActivity({ members, limit = 5 }) {
   // guard: if members isn’t an array, fall back to []
   const arr = Array.isArray(members) ? members : [];
 
-  // now safe to spread
   const recent = [...arr]
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .slice(0, limit);

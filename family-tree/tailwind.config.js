@@ -1,4 +1,4 @@
-// tailwind.config.js
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -9,7 +9,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: "#2563EB",         // your blue
+        primary: "#2563EB",         // blue
         "primary-dark": "#1D4ED8",  // hover
         background: "#EFF6FF",      // light‑blue bg
         text: "#1F2937",            // gray‑800

@@ -76,6 +76,7 @@ export const familyService = {
 };
 
 // Email + PDF
+// not implimented
 export const emailService = {
   sendEmail(data, token) {
     return fetch(`${API_URL}/email/send`, {

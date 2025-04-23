@@ -16,24 +16,20 @@ import EditMembersModal         from '@/components/EditMembersModal';
 
 
 export default function Dashboard() {
-  // ─── 1) Auth & Data Hooks ───────────────────────────────────────
   const router = useRouter();
   const { user, token, loading: authLoading } = useAuth();
   const { members, loading: famLoading, refresh, addMember } = useFamily();
 
-  // ─── 2) Local UI State ─────────────────────────────────────────
   const [showAdd, setShowAdd]   = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   
 
-  // ─── 3) Redirect if not logged in ──────────────────────────────
   useEffect(() => {
     if (!authLoading && !token) {
       router.replace('/login');
     }
   }, [authLoading, token, router]);
 
-  // ─── 4) Early returns ──────────────────────────────────────────
   if (authLoading || !token) {
     return <p className="p-8 text-center">Checking credentials…</p>;
   }

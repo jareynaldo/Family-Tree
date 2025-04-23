@@ -53,7 +53,6 @@ app.post('/api/auth/register', async (req, res) => {
   const user = { id: uuid(), email, firstName, lastName, hash };
   users.push(user);
 
-  // ← re‑initialize their family array here
   families[user.id] = [];
 
   const token = makeToken(user);
@@ -146,7 +145,8 @@ app.delete('/api/family/:id', auth, (req, res) => {
   res.json({ message: 'Member deleted' });
 });
 
-/* ---------- EMAIL + PDF DEMO (unchanged) ---------- */
+/* ---------- EMAIL + PDF  ---------- */
+// not implimented 
 
 app.post('/api/email/send', auth, (req, res) => {
   console.log(`[EMAIL] from ${req.user.email}`, req.body);
